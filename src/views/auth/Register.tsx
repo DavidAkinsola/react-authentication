@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react"
-import { faCheck, faTimes, faInfoCircle } from "@fortawesome/free-solid-svg-icons"
+import { faCheck, faTimes, faInfoCircle, faSpinner } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Input } from "@/components/ui/input";
 import {
@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
+import { Link } from "react-router-dom";
 
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -47,6 +48,7 @@ const Register = () => {
     const [success, setSuccess] = useState(false);
 
     const { toast } = useToast();
+    const [isLoading, setIsLoading ] = useState(false);
 
     useEffect(() => {
         userRef.current?.focus();
@@ -75,6 +77,8 @@ const Register = () => {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
+        setIsLoading(true);
+
 
         //just in case the submit button was enabled via hacking
         const v1 = EMAIL_REGEX.test(email);
@@ -95,9 +99,8 @@ const Register = () => {
         toast({
             title: "You're all set!",
             description: "Check your email inbox to activate your account and login",
-            action: <ToastAction altText="Okay">Okay</ToastAction>,
+            action: <ToastAction altText="Okay" onClick={() => setIsLoading(false)}>Okay</ToastAction>,
         })
-
     }
     
     
@@ -209,7 +212,7 @@ const Register = () => {
                                         <AlertDescription className=" text-left">
                                             8 to 24 characters <br />
                                             Must include uppercase and lowercase letters, a number and a special character <br />
-                                            Allowed special characters: <span aria-aria-label="exclamation mark">!</span><span aria-aria-label="at symbol">@</span><span aria-aria-label="hash tag">#</span><span aria-aria-label="dollar sign">$</span><span aria-aria-label="percent">%</span>
+                                            Allowed special characters: <span aria-label="exclamation mark">!</span><span aria-label="at symbol">@</span><span aria-label="hash tag">#</span><span aria-label="dollar sign">$</span><span aria-label="percent">%</span>
                                         </AlertDescription>
                                     </Alert>
                                 </div>
@@ -248,13 +251,23 @@ const Register = () => {
                         </form>
                     </CardContent>
                     <CardFooter className="flex justify-center">
-                        <Button disabled={!validEmail || !validName || !validMatch ? true : false}
-                        onClick={handleSubmit}>Create Account</Button>
+                        {
+                        isLoading ? 
+                        <Button disabled variant={"ghost"}>
+                            <FontAwesomeIcon icon={faSpinner} className="mr-2 h-4 w-4 animate-spin" />
+                            Please wait
+                        </Button>
+                            :
+                        <Button disabled={!validEmail || !validName || !validMatch ? true : false}onClick={handleSubmit}>Create Account</Button>
+                        }
+                        
+                        
                     </CardFooter>
                     <div className="pb-2">
-                        <p className="text-sm">Already have an account? <Button variant={"link"} >Sign in</Button></p>
+                        <p className="text-sm">Already have an account? <Link to="/auth"><Button variant={"link"} >Sign in</Button></Link></p>
                     </div>
                 </Card> 
+                
             </div>
         </>
      );
